@@ -1,5 +1,5 @@
 {
   "name": "bacon.validation",
-  "version": "0.0.2-rc1",
+  "version": "0.0.2",
   "main": "./dist/bacon.validation.js"
 }
