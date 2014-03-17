@@ -1,4 +1,4 @@
-define(["../../../", "./validity"], function (_, Validity) {
+define(["./validity"], function (_, Validity) {
   var Validations = {
     exists:function(value) {
       return value != null ? Validity.ok : Validity.missing

@@ -1,4 +1,4 @@
-define(["../../../"], function (_) {
+define(["lodash"], function (_) {
   // parent :: Option<ValidationController>
   return function ValidationController(parent) {
     var validations = []
