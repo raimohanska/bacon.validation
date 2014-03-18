@@ -13,27 +13,48 @@ require(["bacon", "bacon.validation"], function(Bacon, Validation) {
   describe('Validation', function() {
     describe('Fields.validatedTextField', function() {
       var field
-      beforeEach(function() {
-        $('#bacon-dom').html('<input type="text" id="text">')
-        field = $('#bacon-dom #text')
-      })
+      beforeEach(createField)
 
       describe('validation', function() {
         it("adds 'missing' class for missing, required field", function() {
             var model = Validation.Fields.validatedTextField(field, { initValue: "", validators: [Validation.Validations.required] })
-            expect(field.hasClass("missing")).to.equal(true)
+            specifyErrors(field, ["missing"])
         })
         it("adds 'error' class for erroneous field", function() {
             var model = Validation.Fields.validatedTextField(field, { initValue: "too long", validators: [Validation.Validations.lengthBetween(1,2)] })
-            expect(field.hasClass("error")).to.equal(true)
+            specifyErrors(field, ["error"])
         })
         it("ValidationController.allValid works", function() {
             var ctrl = Validation.ValidationController()
             var model = Validation.Fields.validatedTextField(field, { validationController: ctrl, initValue: "too long", validators: [Validation.Validations.lengthBetween(1,2)] })
-            expect(field.hasClass("error")).to.equal(true)
             expectStreamValues(ctrl.allValid(), [false])
         })
       })
+
+      describe("validators", function() {
+        it("regex", function() {
+          var validator = Validation.Validations.regex(".*hello.*")
+          specifyValidity(validator, "xhellox", [])
+          specifyValidity(validator, "ello", ["error"])
+        })
+      })
+
+
+      function specifyValidity(validator, value, errors) {
+        createField()
+        var model = Validation.Fields.validatedTextField(field, { initValue: "", validators: [validator] })
+        model.set(value)
+        specifyErrors(field, errors)
+      }
+
+      function specifyErrors(field, classes) {
+        expect(_.intersection(["error", "missing", "duplicate"], field.attr("class").split(" "))).to.deep.equal(classes)
+      }
+
+      function createField() {
+        $('#bacon-dom').html('<input type="text" id="text">')
+        field = $('#bacon-dom #text')
+      }
 
       describe('text field behavior', function() {
         describe('with initVal', function() {

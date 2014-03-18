@@ -37,6 +37,12 @@ define(["lodash", "./validity"], function (_, Validity) {
       }
       return Validity.ok
     },
+    regex: function(regex) {
+      if (!(regex instanceof RegExp)) regex = new RegExp(regex)
+      return function(value) {
+        return Validity.check(regex.test(value), 'error')
+      }
+    },
     anythingGoes: function(value) {
       return Validity.ok
     },
