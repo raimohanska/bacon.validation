@@ -161,7 +161,6 @@ define('validationcontroller',["lodash", "./validity"], function (_, Validity) {
 define('fields',["lodash", "bacon", "./validations", "./conversions", "./validity", "./validationtype", "./validationcontroller", "bacon.jquery"], function(_, Bacon, validations, conversions, Validity, ValidationType, ValidationController, bjq) {
   return {
     validatedTextField: validatedTextField,
-    validatedTextPasswordField: validatedTextPasswordField,
     requiredCheckbox: requiredCheckbox
   }
 
@@ -187,12 +186,6 @@ define('fields',["lodash", "bacon", "./validations", "./conversions", "./validit
   }
 
   function validatedTextField(inputField, options) {
-    return validatedTextFieldWithValidators(inputField, options, [])
-  }
-  function validatedTextPasswordField(inputField, options) {
-    return validatedTextFieldWithValidators(inputField, options, [])
-  }
-  function validatedTextFieldWithValidators(inputField, options, validators) {
     options = options || {}
 
     _.defaults(options, {
@@ -205,14 +198,7 @@ define('fields',["lodash", "bacon", "./validations", "./conversions", "./validit
       ajaxValidationUrl: null
     })
 
-    options.validators = options.validators.concat(validators)
-
-    var validatorsP = Bacon.combineTemplate({
-      v1: options.validators,
-      v2: validators
-    }).map(function(v) {
-        return v.v1.concat(v.v2)
-      }).skipDuplicates(_.isEqual)
+    var validatorsP = Bacon.combineTemplate(options.validators).skipDuplicates(_.isEqual)
 
     var value = bjq.textFieldValue(inputField, options.initValue)
       .lens({
