@@ -17,7 +17,7 @@ define('validationtype',[], function () {
   }
   return ValidationType
 });
-define('validity',["./validationtype"], function(ValidationType) {
+define('validity',["lodash", "./validationtype"], function(_, ValidationType) {
   function Validity(errors) {
     if (!(errors instanceof Array)) throw "Not array: " + errors
     return {
@@ -48,8 +48,9 @@ define('validity',["./validationtype"], function(ValidationType) {
   }
 
   return Validity
-});
-define('validations',["./validity"], function (_, Validity) {
+})
+;
+define('validations',["lodash", "./validity"], function (_, Validity) {
   var Validations = {
     exists:function(value) {
       return value != null ? Validity.ok : Validity.missing

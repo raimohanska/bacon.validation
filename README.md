@@ -14,3 +14,4 @@ Options (all optional):
 - `hideWhen` a boolean Property for hiding this field
 - `converter` a converter function
 - `ajaxValidationUrl` URL for ajax validation
+- `initValue` init value

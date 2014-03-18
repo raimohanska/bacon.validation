@@ -1,4 +1,4 @@
-define(["./validationtype"], function(ValidationType) {
+define(["lodash", "./validationtype"], function(_, ValidationType) {
   function Validity(errors) {
     if (!(errors instanceof Array)) throw "Not array: " + errors
     return {
