@@ -27,10 +27,10 @@ define(["lodash", "bacon", "./validations", "./conversions", "./validity", "./va
   }
 
   function validatedTextField(inputField, options) {
-    return validatedTextFieldWithValidators(inputField, options, [validations.latin1, validations.illegalCharacters])
+    return validatedTextFieldWithValidators(inputField, options, [])
   }
   function validatedTextPasswordField(inputField, options) {
-    return validatedTextFieldWithValidators(inputField, options, [validations.latin1])
+    return validatedTextFieldWithValidators(inputField, options, [])
   }
   function validatedTextFieldWithValidators(inputField, options, validators) {
     options = options || {}
