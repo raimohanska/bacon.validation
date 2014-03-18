@@ -11,23 +11,48 @@ require.config({
 require(["bacon", "bacon.validation"], function(Bacon, Validation) {
   var expect = chai.expect
   describe('Validation', function() {
-    describe('Fields.validatedTextField', function() {
-      var field
-      beforeEach(createField)
+    describe('Fields.validatedSelect', function() {
+      it("validates", function() {
+        var validator = Validation.Validations.lengthBetween(3,3)
+        specifyValidity(validator, "aaa", [])
+        specifyValidity(validator, "b", ["error"])
+      })
 
+      function specifyValidity(validator, value, errors) {
+        withSelect(function(field) {
+          var model = Validation.Fields.validatedSelect(field, { initValue: "a", validators: [validator] })
+          model.set(value)
+          specifyErrors(field, errors)
+        })
+      }
+
+      function withSelect(f) {
+        $('#bacon-dom').html('<select id="select"><option value="aaa">A</option><option value="b">B</option></select>')
+        var field = $('#bacon-dom #select')
+        f(field)
+      }
+    })
+
+    describe('Fields.validatedTextField', function() {
       describe('validation', function() {
         it("adds 'missing' class for missing, required field", function() {
-            var model = Validation.Fields.validatedTextField(field, { initValue: "", validators: [Validation.Validations.required] })
-            specifyErrors(field, ["missing"])
+            withTextField(function(field) {
+              var model = Validation.Fields.validatedTextField(field, { initValue: "", validators: [Validation.Validations.required] })
+              specifyErrors(field, ["missing"])
+            })
         })
         it("adds 'error' class for erroneous field", function() {
+          withTextField(function(field) {
             var model = Validation.Fields.validatedTextField(field, { initValue: "too long", validators: [Validation.Validations.lengthBetween(1,2)] })
             specifyErrors(field, ["error"])
+          })
         })
         it("ValidationController.allValid works", function() {
+          withTextField(function(field) {
             var ctrl = Validation.ValidationController()
             var model = Validation.Fields.validatedTextField(field, { validationController: ctrl, initValue: "too long", validators: [Validation.Validations.lengthBetween(1,2)] })
             expectStreamValues(ctrl.allValid(), [false])
+          })
         })
       })
 
@@ -39,52 +64,27 @@ require(["bacon", "bacon.validation"], function(Bacon, Validation) {
         })
       })
 
-
       function specifyValidity(validator, value, errors) {
-        createField()
-        var model = Validation.Fields.validatedTextField(field, { initValue: "", validators: [validator] })
-        model.set(value)
-        specifyErrors(field, errors)
+        withTextField(function(field) {
+          var model = Validation.Fields.validatedTextField(field, { initValue: "", validators: [validator] })
+          model.set(value)
+          specifyErrors(field, errors)
+        })
       }
 
-      function specifyErrors(field, classes) {
-        expect(_.intersection(["error", "missing", "duplicate"], field.attr("class").split(" "))).to.deep.equal(classes)
+      function withTextField(f) {
+        f(createField())
       }
 
       function createField() {
         $('#bacon-dom').html('<input type="text" id="text">')
-        field = $('#bacon-dom #text')
+        return $('#bacon-dom #text')
       }
-
-      describe('text field behavior', function() {
-        describe('with initVal', function() {
-          it('sets value to DOM', function() {
-              var model = Validation.Fields.validatedTextField(field, { initValue: 'initVal' })
-              expect(field.val()).to.equal('initVal')
-          })
-          it('sets the initVal as the initial value of the model', function() {
-            var model = Validation.Fields.validatedTextField(field, { initValue: 'initVal' })
-            specifyValue(model, 'initVal')
-          })
-        })
-
-        describe('when setting value of model', function() {
-          it('sets value to DOM', function() {
-              Validation.Fields.validatedTextField(field).set('newVal')
-              expect(field.val()).to.equal('newVal')
-          })
-        })
-
-        describe('when DOM value changes', function() {
-          it('updates value of model', function() {
-            var model = Validation.Fields.validatedTextField(field)
-            field.val("newVal")
-            field.trigger("keyup")
-            specifyValue(model, "newVal")
-          })
-        })
-      })
     })
+
+    function specifyErrors(field, classes) {
+      expect(_.intersection(["error", "missing", "duplicate"], field.attr("class").split(" "))).to.deep.equal(classes)
+    }
   })
 
   function expectStreamValues(stream, expectedValues) {

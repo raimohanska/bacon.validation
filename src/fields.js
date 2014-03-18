@@ -1,6 +1,7 @@
 define(["lodash", "bacon", "./validations", "./conversions", "./validity", "./validationtype", "./validationcontroller", "bacon.jquery"], function(_, Bacon, validations, conversions, Validity, ValidationType, ValidationController, bjq) {
   return {
     validatedTextField: validatedTextField,
+    validatedSelect: validatedSelect,
     requiredCheckbox: requiredCheckbox
   }
 
@@ -25,10 +26,10 @@ define(["lodash", "bacon", "./validations", "./conversions", "./validity", "./va
     ajaxValidationPending.assign(inputField, "toggleClass", "ajax-pending")
   }
 
-  function validatedTextField(inputField, options) {
+  function withDefaults(options) {
     options = options || {}
 
-    _.defaults(options, {
+    return _.defaults(options, {
       validationController: ValidationController(),
       validators: [],
       validateWhen: Bacon.constant(true),
@@ -37,15 +38,27 @@ define(["lodash", "bacon", "./validations", "./conversions", "./validity", "./va
       converter: conversions.trim,
       ajaxValidationUrl: null
     })
+  }
 
+  function validatedTextField(inputField, options) {
+    options = withDefaults(options)
+    var value = bjq.textFieldValue(inputField, options.initValue)
+    return validatedField(inputField, value, options)
+  }
+
+  function validatedSelect(selectField, options) {
+    options = withDefaults(options)
+    var value = bjq.selectValue(selectField, options.initValue)
+    return validatedField(selectField, value, options)
+  }
+
+  function validatedField(inputField, value, options) {
+    value = value.lens({
+      get: options.converter,
+      set: function(context, value) { return value }
+    })
     var validatorsP = Bacon.combineTemplate(options.validators).skipDuplicates(_.isEqual)
 
-    var value = bjq.textFieldValue(inputField, options.initValue)
-      .lens({
-        get: options.converter,
-        set: function(context, value) { return value }
-      })
-    value.syncConverter = function(value) { return value || "" }
     var fieldIsRequired = _.contains(options.validators, validations.required)
     if (fieldIsRequired) {
       inputField.addClass('required')
