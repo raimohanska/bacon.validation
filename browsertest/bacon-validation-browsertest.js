@@ -27,6 +27,12 @@ require(["bacon", "bacon.validation"], function(Bacon, Validation) {
             var model = Validation.Fields.validatedTextField(field, { initValue: "too long", validators: [Validation.Validations.lengthBetween(1,2)] })
             expect(field.hasClass("error")).to.equal(true)
         })
+        it("ValidationController.allValid works", function() {
+            var ctrl = Validation.ValidationController()
+            var model = Validation.Fields.validatedTextField(field, { validationController: ctrl, initValue: "too long", validators: [Validation.Validations.lengthBetween(1,2)] })
+            expect(field.hasClass("error")).to.equal(true)
+            expectStreamValues(ctrl.allValid(), [false])
+        })
       })
 
       describe('text field behavior', function() {

@@ -117,7 +117,7 @@ define('validations',["lodash", "./validity"], function (_, Validity) {
 })
 
 ;
-define('validationcontroller',["lodash"], function (_) {
+define('validationcontroller',["lodash", "./validity"], function (_, Validity) {
   // parent :: Option<ValidationController>
   return function ValidationController(parent) {
     var validations = []
