@@ -13,5 +13,5 @@ Options (all optional):
 - `disableWhen` a boolean Property for disabling this field
 - `hideWhen` a boolean Property for hiding this field
 - `converter` a converter function
-- `ajaxValidationUrl` URL for ajax validation
+- `ajaxValidationUrl` URL for ajax validation. For example: /api/username/valid/{val}. Expects the string `true` or `false` as response.
 - `initValue` init value
