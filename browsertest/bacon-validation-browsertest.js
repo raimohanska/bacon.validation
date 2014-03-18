@@ -41,13 +41,6 @@ require(["bacon", "bacon.validation"], function(Bacon, Validation) {
           })
         })
 
-        describe('without initVal', function() {
-          it('leaves DOM unaffected', function() {
-              var model = Bacon.$.textFieldValue(field)
-              expect(field.val()).to.equal('defaultVal')
-          })
-        })
-
         describe('when setting value of model', function() {
           it('sets value to DOM', function() {
               Validation.Fields.validatedTextField(field).set('newVal')
