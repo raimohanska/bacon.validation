@@ -54,7 +54,8 @@ define(["lodash", "./validity"], function (_, Validity) {
           return Validations.anythingGoes
         }
       })
-    }
+    },
+    emptyOk: emptyOk
   }
 
   return Validations
