@@ -177,7 +177,7 @@ define('fields',["lodash", "bacon", "./validations", "./conversions", "./validit
 
     var ajaxValidated = ajaxValidationResult.mapError(false).startWith(false).merge(valueProperty.changes().map(false)).toProperty().skipDuplicates()
 
-    var ajaxValidationPending = valueToBeValidatedWithAjax.awaiting(ajaxValidationResult)
+    var ajaxValidationPending = valueToBeValidatedWithAjax.awaiting(ajaxValidationResult.mapError())
     var ajaxOk = ajaxValidated.or(missing).or(validationCondition.not())
     var ajaxValidation = ajaxOk.map(function (isValid) { return Validity.check(isValid, ValidationType.error) })
 
