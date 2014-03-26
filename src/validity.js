@@ -18,6 +18,7 @@ define(["lodash", "./validationtype"], function(_, ValidationType) {
   Validity.missing = Validity([ValidationType.missing])
   Validity.duplicate = Validity([ValidationType.duplicate])
   Validity.error = Validity([ValidationType.error])
+  Validity.pending = Validity([ValidationType.pending])
   Validity.check = function(condition, validationType) { return condition ? Validity.ok : Validity([validationType]) }
 
   // Validity.conditional :: Property<Validity> -> Property<boolean> -> Property<Validity>

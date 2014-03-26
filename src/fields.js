@@ -1,5 +1,5 @@
 define(["lodash", "bacon", "./validations", "./conversions", "./validity", "./validationtype", "./validationcontroller", "bacon.jquery"], function(_, Bacon, validations, conversions, Validity, ValidationType, ValidationController, bjq) {
-  return {
+return {
     validatedTextField: validatedTextField,
     validatedSelect: validatedSelect,
     requiredCheckbox: requiredCheckbox
@@ -7,23 +7,17 @@ define(["lodash", "bacon", "./validations", "./conversions", "./validity", "./va
 
   function ajaxValidation(inputField, ajaxValidationUrl, valueProperty, validity, validationCondition, validationController) {
     var missing = valueProperty.map(function (value) { return !validations.required(value).isValid })
-    var valid = validity.map(function(validity) { return validity.isValid }).and(missing.not())
-    var valueToBeValidatedWithAjax = valueProperty.filter(valid)
-    var ajaxValidationResult = valueToBeValidatedWithAjax
-      .debounce(1000)
-      .map(function (value) { return {url: ajaxValidationUrl.replace(/\{val\}/g, value)}})
-      .flatMapLatest(bjq.ajax)
+    var inputValueValid = validity.map(function(validity) { return validity.isValid }).and(missing.not())
 
-    var ajaxValidated = ajaxValidationResult.mapError(false).startWith(false).merge(valueProperty.changes().map(false)).toProperty().skipDuplicates()
-
-    var ajaxValidationPending = valueToBeValidatedWithAjax.awaiting(ajaxValidationResult.mapError())
-    var ajaxOk = ajaxValidated.or(missing).or(validationCondition.not())
-    var ajaxValidation = ajaxOk.map(function (isValid) { return Validity.check(isValid, ValidationType.error) })
-
-    validationController.addValidation(ajaxValidation)
-    validationController.addValidation(ajaxOk.map(function (isValid) { return Validity.check(isValid, ValidationType.error) }))
-    ajaxOk.not().assign(inputField, "toggleClass", "error")
-    ajaxValidationPending.assign(inputField, "toggleClass", "ajax-pending")
+    return Bacon.combineTemplate({value: valueProperty, validity: validity}).flatMapLatest(function(data) {
+      if (data.validity.isValid && data.value) { // <- not sure if the check's good
+        var requestE = Bacon.later(1000).map({url: ajaxValidationUrl.replace(/\{val\}/g, data.value)})
+        var responseE = requestE.ajax().mapError(false)
+        return responseE.map(function (isValid) { return Validity.check(isValid, ValidationType.error) }).startWith(Validity.pending)
+      } else {
+        return data.validity
+      }
+    }).toProperty()
   }
 
   function withDefaults(options) {
@@ -74,16 +68,15 @@ define(["lodash", "bacon", "./validations", "./conversions", "./validity", "./va
 
     validity = Validity.conditional(validity, options.validateWhen)
 
-    fieldSideEffects(inputField, validity)
+    var fullValidity = options.ajaxValidationUrl ? ajaxValidation(inputField, options.ajaxValidationUrl, value, validity, options.validateWhen, options.validationController) : validity
 
-    options.validationController.addValidation(validity)
+    fieldSideEffects(inputField, fullValidity)
+
+    options.validationController.addValidation(fullValidity)
 
     options.disableWhen.assign(inputField, "prop", "disabled")
     options.hideWhen.not().assign(inputField, "toggle")
 
-    if (options.ajaxValidationUrl) {
-      ajaxValidation(inputField, options.ajaxValidationUrl, value, validity, options.validateWhen, options.validationController)
-    }
     return value
   }
 

@@ -2,7 +2,8 @@ define([], function () {
   var ValidationType  = {
     missing: "missing",
     error: "error",
-    duplicate: "duplicate"
+    duplicate: "duplicate",
+    pending: "pending"
   }
   return ValidationType
 })
