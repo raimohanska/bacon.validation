@@ -9,8 +9,8 @@ return {
     var missing = valueProperty.map(function (value) { return !validations.required(value).isValid })
     var inputValueValid = validity.map(function(validity) { return validity.isValid }).and(missing.not())
 
-    return Bacon.combineTemplate({value: valueProperty, validity: validity}).flatMapLatest(function(data) {
-      if (data.validity.isValid && data.value) { // <- not sure if the check's good
+    return Bacon.combineTemplate({value: valueProperty, validity: validity, shouldValidate: validationCondition}).flatMapLatest(function(data) {
+      if (data.validity.isValid && data.value && data.shouldValidate) { // <- not sure if the check's good
         var requestE = Bacon.later(1000).map({url: ajaxValidationUrl.replace(/\{val\}/g, data.value)})
         var responseE = requestE.ajax().mapError(false)
         return responseE.map(function (isValid) { return Validity.check(isValid, ValidationType.error) }).startWith(Validity.pending)
