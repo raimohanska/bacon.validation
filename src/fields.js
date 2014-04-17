@@ -68,7 +68,7 @@ return {
 
     validity = Validity.conditional(validity, options.validateWhen).skipDuplicates()
 
-    var fullValidity = options.ajaxValidationUrl ? ajaxValidation(inputField, options.ajaxValidationUrl, value, validity, options.validateWhen, options.validationController) : validity
+    var fullValidity = options.ajaxValidationUrl ? ajaxValidation(inputField, options.ajaxValidationUrl, (options.validateInitValue == false) ? value.changes() : value, validity, options.validateWhen, options.validationController) : validity
 
     fieldSideEffects(inputField, fullValidity)
 
