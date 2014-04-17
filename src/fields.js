@@ -5,9 +5,11 @@ return {
     requiredCheckbox: requiredCheckbox
   }
 
-  function ajaxValidation(inputField, ajaxValidationUrl, valueProperty, validity, validationCondition, validationController) {
-    var missing = valueProperty.map(function (value) { return !validations.required(value).isValid })
-    var inputValueValid = validity.map(function(validity) { return validity.isValid }).and(missing.not())
+  function ajaxValidation(inputField, ajaxValidationUrl, validateInitValue, valueProperty, validity, validationCondition, validationController) {
+    if (validateInitValue == false) {
+      var isInitialValue = valueProperty.changes().map(false).toProperty(true)
+      validationCondition = validationCondition.and(isInitialValue.not())
+    }
 
     return Bacon.combineTemplate({value: valueProperty, validity: validity, shouldValidate: validationCondition}).flatMapLatest(function(data) {
       if (data.validity.isValid && data.value && data.shouldValidate) { // <- not sure if the check's good
@@ -68,7 +70,7 @@ return {
 
     validity = Validity.conditional(validity, options.validateWhen).skipDuplicates()
 
-    var fullValidity = options.ajaxValidationUrl ? ajaxValidation(inputField, options.ajaxValidationUrl, (options.validateInitValue == false) ? value.changes() : value, validity, options.validateWhen, options.validationController) : validity
+    var fullValidity = options.ajaxValidationUrl ? ajaxValidation(inputField, options.ajaxValidationUrl, options.validateInitValue, value, validity, options.validateWhen, options.validationController) : validity
 
     fieldSideEffects(inputField, fullValidity)
 
