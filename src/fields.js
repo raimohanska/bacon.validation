@@ -11,7 +11,7 @@ return {
       validationCondition = validationCondition.and(isInitialValue.not())
     }
 
-    return Bacon.combineTemplate({value: valueProperty, validity: validity, shouldValidate: validationCondition}).flatMapLatest(function(data) {
+    return Bacon.combineTemplate({value: valueProperty.skipDuplicates(), validity: validity.skipDuplicates(), shouldValidate: validationCondition.skipDuplicates()}).flatMapLatest(function(data) {
       if (data.validity.isValid && data.value && data.shouldValidate) { // <- not sure if the check's good
         var requestE = Bacon.later(1000).map({url: ajaxValidationUrl.replace(/\{val\}/g, data.value)})
         var responseE = requestE.ajax().mapError(false)
